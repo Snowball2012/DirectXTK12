@@ -256,15 +256,27 @@ namespace
         desc.SampleDesc.Quality = 0;
         desc.Dimension = resDim;
 
-        CD3DX12_HEAP_PROPERTIES defaultHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+        if (loadFlags & DDS_LOADER_CREATE_RESERVED_RESOURCE)
+        {
+            desc.Layout = D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE;
+            hr = d3dDevice->CreateReservedResource(
+                &desc,
+                D3D12_RESOURCE_STATE_COPY_DEST,
+                nullptr,
+                IID_GRAPHICS_PPV_ARGS( texture ) );
+        }
+        else
+        {
+            CD3DX12_HEAP_PROPERTIES defaultHeapProperties( D3D12_HEAP_TYPE_DEFAULT );
 
-        hr = d3dDevice->CreateCommittedResource(
-            &defaultHeapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &desc,
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            nullptr,
-            IID_GRAPHICS_PPV_ARGS(texture));
+            hr = d3dDevice->CreateCommittedResource(
+                &defaultHeapProperties,
+                D3D12_HEAP_FLAG_NONE,
+                &desc,
+                D3D12_RESOURCE_STATE_COPY_DEST,
+                nullptr,
+                IID_GRAPHICS_PPV_ARGS( texture ) );
+        }
         if (SUCCEEDED(hr))
         {
             _Analysis_assume_(*texture != 0);
@@ -823,6 +835,10 @@ HRESULT DirectX::CreateDDSTextureFromMemoryEx(
     DDS_ALPHA_MODE* alphaMode,
     bool* isCubeMap)
 {
+    // Can't upload to reserved resource without physical memory backing it
+    if (loadFlags & DDS_LOADER_CREATE_RESERVED_RESOURCE)
+        return E_INVALIDARG;
+
     std::vector<D3D12_SUBRESOURCE_DATA> subresources;
     HRESULT hr = LoadDDSTextureFromMemoryEx(
         d3dDevice,

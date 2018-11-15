@@ -41,10 +41,11 @@ namespace DirectX
 
     enum DDS_LOADER_FLAGS
     {
-        DDS_LOADER_DEFAULT      = 0,
-        DDS_LOADER_FORCE_SRGB   = 0x1,
-        DDS_LOADER_MIP_AUTOGEN  = 0x4,
-        DDS_LOADER_MIP_RESERVE  = 0x8,
+        DDS_LOADER_DEFAULT                  = 0,
+        DDS_LOADER_FORCE_SRGB               = 0x1,
+        DDS_LOADER_MIP_AUTOGEN              = 0x4,
+        DDS_LOADER_MIP_RESERVE              = 0x8,
+        DDS_LOADER_CREATE_RESERVED_RESOURCE = 0x10
     };
 
     // Standard version
