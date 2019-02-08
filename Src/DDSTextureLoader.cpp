@@ -256,12 +256,14 @@ namespace
         desc.SampleDesc.Quality = 0;
         desc.Dimension = resDim;
 
+        D3D12_RESOURCE_STATES defaultState = (loadFlags & DDS_LOADER_CREATE_IN_COMMON_STATE) ? D3D12_RESOURCE_STATE_COMMON : D3D12_RESOURCE_STATE_COPY_DEST;
+
         if (loadFlags & DDS_LOADER_CREATE_RESERVED_RESOURCE)
         {
             desc.Layout = D3D12_TEXTURE_LAYOUT_64KB_UNDEFINED_SWIZZLE;
             hr = d3dDevice->CreateReservedResource(
                 &desc,
-                D3D12_RESOURCE_STATE_COPY_DEST,
+                defaultState,
                 nullptr,
                 IID_GRAPHICS_PPV_ARGS( texture ) );
         }
@@ -273,7 +275,7 @@ namespace
                 &defaultHeapProperties,
                 D3D12_HEAP_FLAG_NONE,
                 &desc,
-                D3D12_RESOURCE_STATE_COPY_DEST,
+                defaultState,
                 nullptr,
                 IID_GRAPHICS_PPV_ARGS( texture ) );
         }
@@ -860,9 +862,11 @@ HRESULT DirectX::CreateDDSTextureFromMemoryEx(
             &subresources[0],
             static_cast<UINT>(subresources.size()));
 
+        D3D12_RESOURCE_STATES sourceState = (loadFlags & DDS_LOADER_CREATE_IN_COMMON_STATE) ? D3D12_RESOURCE_STATE_COMMON : D3D12_RESOURCE_STATE_COPY_DEST;
+
         resourceUpload.Transition(
             *texture,
-            D3D12_RESOURCE_STATE_COPY_DEST,
+            sourceState,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
         // If it's missing mips, let's generate them
@@ -934,9 +938,11 @@ HRESULT DirectX::CreateDDSTextureFromFileEx(
             &subresources[0],
             static_cast<UINT>(subresources.size()));
 
+        D3D12_RESOURCE_STATES sourceState = (loadFlags & DDS_LOADER_CREATE_IN_COMMON_STATE) ? D3D12_RESOURCE_STATE_COMMON : D3D12_RESOURCE_STATE_COPY_DEST;
+
         resourceUpload.Transition(
             *texture,
-            D3D12_RESOURCE_STATE_COPY_DEST,
+            sourceState,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
         // If it's missing mips, let's generate them
